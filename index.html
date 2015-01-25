@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AngularJS and Spotify API</title>
+    <link rel="stylesheet" href="bower_components/uikit/css/uikit.gradient.min.css">
+  </head>
+  <body ng-app="app">
+    <section class="uk-container uk-container-center uk-margin-top" ng-controller="MainCtrl">
+      <h1>AngularJS and Spotify API</h1>
+      <hr />
+      <p ng-if="message" ng-bind="message"></p>
+      <div>
+        <button ng-click="requests.albums()" class="uk-button uk-button-large">Albums</button>
+        <button ng-click="requests.artists()" class="uk-button uk-button-large">Artists</button>
+        <button ng-click="requests.browse()" class="uk-button uk-button-large">Browse</button>
+        <button ng-click="requests.follow()" class="uk-button uk-button-large">Follow</button>
+        <button ng-click="requests.library()" class="uk-button uk-button-large">Library</button>
+        <button ng-click="requests.playlists()" class="uk-button uk-button-large">Playlists</button>
+        <button ng-click="requests.profiles()" class="uk-button uk-button-large">Profiles</button>
+        <button ng-click="requests.search()" class="uk-button uk-button-large">Search</button>
+        <button ng-click="requests.tracks()" class="uk-button uk-button-large">Tracks</button>
+      </div>
+      <div ng-if="!isAuthorized" class="uk-margin-top">
+        <button ng-click="requests.login()" class="uk-button uk-button-large uk-button-primary">Login</button>
+      </div>
+    </section>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-cache/dist/angular-cache.js"></script>
+    <script src="angular-spotify.js"></script>
+    <script>
+    (function (window, angular, undefined) {
+
+      'use strict';
+
+      var app;
+
+      app = angular.module('app', ['angular-spotify']);
+
+      app.config(['spotifyProvider', function (spotifyProvider) {
+        spotifyProvider.setConfig({
+          clientId: '414ef44b5faa45bbb452ac118192c893',
+          responseType: 'token', // This is the default value
+          redirectUri: 'http://127.0.0.1:8080/',
+          state: true, // This is the default value
+          scope: 'playlist-read-private playlist-modify-public playlist-modify-private streaming user-follow-modify user-follow-read user-library-read user-library-modify user-read-private user-read-email',
+          showDialog: false // This is the default value
+        });
+      }]);
+
+      app.value('messages', {
+        'SPOTIFY_AUTH_ERROR': 'There was an error during authorization process.',
+        'SPOTIFY_AUTH_REQUIRED': 'You need to authorize the application and receive an access token.'
+      });
+
+      app.controller('MainCtrl', ['$scope', 'spotify', 'messages', function ($scope, spotify, messages) {
+        $scope.isAuthorized = spotify.auth.authorized;
+        $scope.message = messages[spotify.auth.message];
+
+        $scope.requests = {
+          /**
+           * Authorization handler
+           *
+           */
+          login: function () {
+            // Authorize
+            spotify.auth.login();
+          },
+
+          /**
+           * Web API Album Endpoints
+           *
+           */
+          albums: function () {
+            // Get an album
+            spotify.albums.get({ id: '4ImqOjB9lCi86ZhshUbNUm' });
+
+            // Get several albums
+            spotify.albums.get({ ids: '4ImqOjB9lCi86ZhshUbNUm,2R7iJz5uaHjLEVnMkloO18' });
+
+            // Get an album's tracks
+            spotify.albums.tracks({ id: '4ImqOjB9lCi86ZhshUbNUm', limit: 4, offset: 2 });
+
+            // Search for an album
+            spotify.search.album({ q: 'Cold', market: 'US', limit: 5, offset: 5 });
+          },
+
+          /**
+           * Web API Artist Endpoints
+           *
+           */
+          artists: function () {
+            // Get an artist
+            spotify.artists.get({ id: '4gzpq5DPGxSnKTe4SA8HAU' });
+
+            // Get several artists
+            spotify.artists.get({ ids: '4gzpq5DPGxSnKTe4SA8HAU,3UAk61T8PItbpgEi9u7ofY' });
+
+            // Get an artist's albums
+            spotify.artists.albums({ id: '4gzpq5DPGxSnKTe4SA8HAU', album_type: 'album', market: 'US', limit: 4, offset: 2 });
+
+            // Get an artist's top tracks
+            spotify.artists.topTracks({ id: '4gzpq5DPGxSnKTe4SA8HAU', country: 'GR' });
+
+            // Get an artist's related artists
+            spotify.artists.relatedArtists({ id: '4gzpq5DPGxSnKTe4SA8HAU' });
+
+            // Search for an artist
+            spotify.search.artist({ q: 'Cold', market: 'NL', limit: 5, offset: 5 });
+          },
+
+          /**
+           * Web API Browse Endpoints
+           *
+           */
+          browse: function () {
+            // Get a list of featured playlists
+            spotify.browse.featuredPlaylists({ locale: 'en_US', country: 'US', timestamp: '2014-10-23T09:00:00', limit: 10, offset: 10 });
+
+            // Get a list of new releases
+            spotify.browse.newReleases({ country: 'NL', limit: 10, offset: 10 });
+          },
+
+          /**
+           * Web API Follow Endpoints
+           *
+           */
+          follow: function () {
+            // Follow Artists or Users
+            // Type can be artist or user
+            spotify.me.follow({ type: 'artist', ids: ['74ASZWbe4lXaubB36ztrGX', '08td7MxkoHQkXnWAYD8d6Q'] });
+
+            // Unfollow Artists or Users
+            // Type can be artist or user
+            spotify.me.unfollow({ type: 'artist', ids: ['4gzpq5DPGxSnKTe4SA8HAU', '74ASZWbe4lXaubB36ztrGX'] });
+
+            // Check if Current User Follows
+            spotify.me.following({ type: 'artist', ids: ['4gzpq5DPGxSnKTe4SA8HAU', '74ASZWbe4lXaubB36ztrGX'] });
+          },
+
+          /**
+           * Web API “Your Music” Library Endpoints
+           *
+           */
+          library: function () {
+            // Save tracks for user
+            spotify.me.saveTracks({ ids: ['4iV5W9uYEdYUVa79Axb7Rh', '1301WleyT98MSxVHPZCA6M'] });
+
+            // Get user's saved tracks
+            spotify.me.tracks({ limit: 5, offset: 1 });
+
+            // Remove user's saved tracks
+            spotify.me.deleteTracks({ ids: ['4iV5W9uYEdYUVa79Axb7Rh', '1301WleyT98MSxVHPZCA6M'] });
+
+            // Check user's saved tracks
+            spotify.me.hasTracks({ ids: ['4iV5W9uYEdYUVa79Axb7Rh', '1301WleyT98MSxVHPZCA6M'] });
+          },
+
+          /**
+           * Web API Playlist Endpoints
+           *
+           */
+          playlists: function () {
+            // Get a list of a user's playlists
+            spotify.users.playlists.get({ user_id: '11121841947', limit: 10, offset: 5 });
+
+            // Get a playlist
+            spotify.users.playlists.single({ user_id: 'wizzler', playlist_id: '3FJd21jWvCjGCLx7eKrext', fields: 'href,name,owner(!href)' });
+
+            // Get a playlist's tracks
+            spotify.users.playlists.tracks({
+              user_id: 'wizzler',
+              playlist_id: '3FJd21jWvCjGCLx7eKrext',
+              fields: 'href,items(added_at),items.track.album(!external_urls,images)',
+              limit: 10,
+              offset: 5
+            });
+
+            // Create a playlist
+            spotify.users.playlists.create({ user_id: '11121841947' }, { name: 'Test playlist', public: false });
+
+            // Change a Playlist’s Details
+            spotify.users.playlists.edit(
+              { user_id: '11121841947', playlist_id: '49RXlVnc7pYBuZu2Q8RRLr' },
+              { name: 'New name', public: false }
+            );
+
+            // Add Tracks to a Playlist
+            spotify.users.playlists.addTracks({
+              user_id: '11121841947',
+              playlist_id: '49RXlVnc7pYBuZu2Q8RRLr',
+              uris: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M',
+              position: 0
+            });
+
+            // Remove Tracks from a Playlist
+            // TODO: Returns a 400 error `Empty JSON body.`
+            // spotify.users.playlists.removeTracks(
+            //   { user_id: '11121841947', playlist_id: '49RXlVnc7pYBuZu2Q8RRLr' },
+            //   { tracks: [
+            //     { uri: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh', positions: [2] },
+            //     { uri: 'spotify:track:1301WleyT98MSxVHPZCA6M', positions: [7] }
+            //   ] }
+            // );
+
+            // Replace a playlist's tracks
+            spotify.users.playlists.replaceTracks({
+              user_id: '11121841947',
+              playlist_id: '49RXlVnc7pYBuZu2Q8RRLr',
+              uris: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M'
+            });
+
+            // Follow a Playlist
+            spotify.users.playlists.follow(
+              { user_id: '11121841947', playlist_id: '49RXlVnc7pYBuZu2Q8RRLr' },
+              { public: false }
+            );
+
+            // Unfollow a Playlist
+            spotify.users.playlists.unfollow({ user_id: '11121841947', playlist_id: '49RXlVnc7pYBuZu2Q8RRLr' });
+
+            // Search for a playlist
+            spotify.search.playlist({ q: 'Cold', market: 'NL', limit: 5, offset: 5 });
+          },
+
+          /**
+           * Web API User Profile Endpoints
+           *
+           */
+          profiles: function () {
+            // Get current user's profile
+            spotify.me.get();
+
+            // Get a User’s Profile
+            spotify.users.info.get({ user_id: 'wizzler' });
+          },
+
+          /**
+           * Search for an Item
+           *
+           */
+          search: function () {
+            // Type can be a comma-separated list of item types to search across.
+            // Valid types are: album, artist, playlist, and track
+            spotify.search.get({ q: 'Cold', type: 'artist,album', market: 'US', limit: 10, offset: 10 });
+          },
+
+          /**
+           * Web API Track Endpoints
+           *
+           */
+          tracks: function () {
+            // Get a track
+            spotify.tracks.get({ id: '6EnhaTVbcpObCh1uO2yDN1' });
+
+            // Get several tracks
+            spotify.tracks.get({ ids: '6EnhaTVbcpObCh1uO2yDN1,0ll6hvOfuN37ECitFVaMgK' });
+
+            // Search for a track
+            spotify.search.track({ q: 'Always in my', market: 'NL', limit: 5, offset: 5 });
+          }
+        };
+      }]);
+
+    })(window, window.angular);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "angular-spotify",
+  "version": "1.0.0",
+  "description": "An AngularJS provider that encapsulates the functionality provided by Spotify API.",
+  "main": "angular-spotify.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:orestisioakeimidis/angular-spotify-provider.git"
+  },
+  "keywords": [
+    "angular",
+    "spotify"
+  ],
+  "author": "Orestis Ioakeimidis <o.ioakeimidis@gmail.com>",
+  "license": "MIT"
+}
