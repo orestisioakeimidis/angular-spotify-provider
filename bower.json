@@ -1,10 +1,10 @@
 {
-  "name": "angular-spotify",
-  "version": "1.0.0",
+  "name": "angular-spotify-provider",
+  "version": "1.0.1",
   "authors": [
     "Orestis Ioakeimidis <o.ioakeimidis@gmail.com>"
   ],
-  "description": "An AngularJS provider that encapsulates the functionality provided by Spotify API.",
+  "description": "An AngularJS provider that encapsulates the functionality provided by Spotify Web API.",
   "main": "angular-spotify.js",
   "keywords": [
     "angular",
@@ -12,7 +12,9 @@
   ],
   "license": "MIT",
   "ignore": [
-    "bower_components"
+    "bower_components",
+    "index.html",
+    ".gitignore"
   ],
   "dependencies": {
     "angular": "1.3.10",

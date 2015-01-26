@@ -1,7 +1,7 @@
 {
-  "name": "angular-spotify",
-  "version": "1.0.0",
-  "description": "An AngularJS provider that encapsulates the functionality provided by Spotify API.",
+  "name": "angular-spotify-provider",
+  "version": "1.0.1",
+  "description": "An AngularJS provider that encapsulates the functionality provided by Spotify Web API.",
   "main": "angular-spotify.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
